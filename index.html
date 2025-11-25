@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="大学生竞赛DDL追踪 - 协作追踪全国大学生竞赛截止日期">
+    <title>大学生竞赛DDL - College Competition Deadlines</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .logo-text h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .github-link {
+            color: #6b7280;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.2s;
+        }
+
+        .github-link:hover {
+            color: #111827;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .filter-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .filter-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .filter-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .count {
+            color: #3b82f6;
+            font-weight: 600;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+        }
+
+        .stat-card.urgent { border-left-color: #ef4444; }
+        .stat-card.active { border-left-color: #10b981; }
+        .stat-card.high { border-left-color: #8b5cf6; }
+        .stat-card.total { border-left-color: #3b82f6; }
+
+        .stat-label {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .stat-card.urgent .stat-value { color: #ef4444; }
+        .stat-card.active .stat-value { color: #10b981; }
+        .stat-card.high .stat-value { color: #8b5cf6; }
+        .stat-card.total .stat-value { color: #3b82f6; }
+
+        /* Table */
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        tbody tr.urgent {
+            background-color: #fef2f2;
+        }
+
+        tbody tr.active {
+            background-color: #f0fdf4;
+        }
+
+        .competition-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+
+        .competition-name {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 6px;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #dbeafe;
+            color: #1e40af;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge.s { background: #fee2e2; color: #991b1b; }
+        .badge.a { background: #fed7aa; color: #9a3412; }
+        .badge.b { background: #dbeafe; color: #1e40af; }
+        .badge.c { background: #e5e7eb; color: #374151; }
+
+        .star {
+            color: #ef4444;
+            margin-left: 4px;
+        }
+
+        .countdown {
+            text-align: center;
+        }
+
+        .countdown-value {
+            font-size: 20px;
+            font-weight: 700;
+            display: block;
+        }
+
+        .countdown-label {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .countdown.urgent .countdown-value { color: #ef4444; }
+        .countdown.active .countdown-value { color: #10b981; }
+        .countdown.ended .countdown-value { color: #9ca3af; }
+
+        .link-btn {
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 18px;
+            transition: color 0.2s;
+        }
+
+        .link-btn:hover {
+            color: #1e40af;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 48px 16px;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            color: #d1d5db;
+            margin-bottom: 16px;
+        }
+
+        .empty-text {
+            color: #6b7280;
+            font-size: 16px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 32px 16px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        footer a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 800px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 48px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🏆</div>
+                <div class="logo-text">
+                    <h1>大学生竞赛DDL</h1>
+                    <p>College Competition Deadlines</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <a href="https://github.com/yourusername/college-competition-ddl" class="github-link" target="_blank">
+                    <span>⭐</span>
+                    <span>GitHub</span>
+                </a>
+                <span id="currentDate"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-grid">
+                <input type="text" id="searchInput" class="filter-input" placeholder="🔍 搜索比赛名称...">
+                <select id="categoryFilter" class="filter-input">
+                    <option value="all">类别: 全部</option>
+                </select>
+                <select id="levelFilter" class="filter-input">
+                    <option value="all">等级: 全部</option>
+                    <option value="S">等级: S类</option>
+                    <option value="A">等级: A类</option>
+                    <option value="B">等级: B类</option>
+                    <option value="C">等级: C类</option>
+                </select>
+                <select id="statusFilter" class="filter-input">
+                    <option value="all">状态: 全部</option>
+                    <option value="urgent">即将截止</option>
+                    <option value="active">报名中</option>
+                    <option value="upcoming">未开始</option>
+                    <option value="ended">已截止</option>
+                </select>
+            </div>
+            <div class="filter-info">
+                <span>共 <span class="count" id="totalCount">0</span> 个竞赛</span>
+                <span id="updateTime"></span>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card urgent">
+                <div class="stat-label">即将截止</div>
+                <div class="stat-value" id="urgentCount">0</div>
+            </div>
+            <div class="stat-card active">
+                <div class="stat-label">报名中</div>
+                <div class="stat-value" id="activeCount">0</div>
+            </div>
+            <div class="stat-card high">
+                <div class="stat-label">S/A类竞赛</div>
+                <div class="stat-value" id="highLevelCount">0</div>
+            </div>
+            <div class="stat-card total">
+                <div class="stat-label">总竞赛数</div>
+                <div class="stat-value" id="totalCompetitions">0</div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <table id="competitionTable">
+                <thead>
+                    <tr>
+                        <th>比赛</th>
+                        <th>分类</th>
+                        <th>等级</th>
+                        <th>截止日期</th>
+                        <th>倒计时</th>
+                        <th>链接</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr>
+                        <td colspan="6" class="loading">加载中...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>💡 提示：请以官方网站信息为准，及时关注比赛动态</p>
+        <p style="margin-top: 8px;">
+            <a href="https://github.com/yourusername/college-competition-ddl" target="_blank">GitHub</a>
+            · 欢迎贡献竞赛信息 · 
+            <a href="#" onclick="alert('使用说明：\n1. 使用搜索框查找竞赛\n2. 通过筛选器过滤结果\n3. 点击链接访问官网\n4. 红色标记表示即将截止'); return false;">使用说明</a>
+        </p>
+        <p style="margin-top: 8px; font-size: 11px; color: #9ca3af;">
+            Inspired by <a href="https://ccfddl.com" target="_blank">CCF-Deadlines</a> ❤️
+        </p>
+    </footer>
+
+    <script>
+        // 竞赛数据
+        const competitions = [
+            {
+                id: 1,
+                title: 'CUMCM',
+                name: '全国大学生数学建模竞赛',
+                category: '数学建模',
+                level: 'A',
+                deadline: '2025-09-15 17:00:00',
+                website: 'http://www.mcm.edu.cn/',
+                tags: ['科研学术', '团队', '数学']
+            },
+            {
+                id: 2,
+                title: 'Internet+',
+                name: '中国国际"互联网+"大学生创新创业大赛',
+                category: '创新创业',
+                level: 'A',
+                deadline: '2025-08-20 23:59:59',
+                website: 'https://cy.ncss.cn/',
+                tags: ['创业', '项目', '创新']
+            },
+            {
+                id: 3,
+                title: 'NUEDC',
+                name: '全国大学生电子设计竞赛',
+                category: '电子设计',
+                level: 'A',
+                deadline: '2025-08-10 12:00:00',
+                website: 'http://www.nuedc.com.cn/',
+                tags: ['硬件', '团队', '电路']
+            },
+            {
+                id: 4,
+                title: 'ACM-ICPC',
+                name: 'ACM国际大学生程序设计竞赛',
+                category: '程序设计',
+                level: 'S',
+                deadline: '2025-10-30 23:59:59',
+                website: 'https://icpc.global/',
+                tags: ['算法', '团队', '国际', '编程']
+            },
+            {
+                id: 5,
+                title: 'CMIDC',
+                name: '全国大学生机械创新设计大赛',
+                category: '机械设计',
+                level: 'A',
+                deadline: '2025-07-15 18:00:00',
+                website: 'http://umic.ckcest.cn/',
+                tags: ['创新', '团队', '机械']
+            },
+            {
+                id: 6,
+                title: 'Challenge Cup',
+                name: '"挑战杯"全国大学生课外学术科技作品竞赛',
+                category: '科技创新',
+                level: 'A',
+                deadline: '2025-06-30 23:59:59',
+                website: 'http://www.tiaozhanbei.net/',
+                tags: ['科研', '论文', '团队']
+            },
+            {
+                id: 7,
+                title: 'NCAC',
+                name: '全国大学生广告艺术大赛',
+                category: '艺术设计',
+                level: 'B',
+                deadline: '2025-06-01 23:59:59',
+                website: 'http://www.sun-ada.net/',
+                tags: ['创意', '设计', '广告']
+            },
+            {
+                id: 8,
+                title: 'NECCS',
+                name: '全国大学生英语竞赛',
+                category: '语言能力',
+                level: 'B',
+                deadline: '2025-04-15 12:00:00',
+                website: 'http://www.chinaneccs.cn/',
+                tags: ['语言', '个人', '英语']
+            },
+            {
+                id: 9,
+                title: 'CCCCC',
+                name: '中国大学生计算机设计大赛',
+                category: '程序设计',
+                level: 'B',
+                deadline: '2025-05-20 23:59:59',
+                website: 'http://www.c4best.cn/',
+                tags: ['编程', '软件', '团队']
+            },
+            {
+                id: 10,
+                title: 'LanQiao Cup',
+                name: '"蓝桥杯"全国软件和信息技术专业人才大赛',
+                category: '程序设计',
+                level: 'C',
+                deadline: '2025-03-25 23:59:59',
+                website: 'https://www.lanqiao.cn/',
+                tags: ['编程', '个人', '算法']
+            }
+        ];
+
+        // 计算倒计时
+        function calculateDaysLeft(deadline) {
+            const now = new Date();
+            const deadlineDate = new Date(deadline);
+            const diff = Math.ceil((deadlineDate - now) / (1000 * 60 * 60 * 24));
+            return diff;
+        }
+
+        // 获取状态
+        function getStatus(daysLeft) {
+            if (daysLeft < 0) return 'ended';
+            if (daysLeft <= 7) return 'urgent';
+            if (daysLeft <= 30) return 'active';
+            return 'upcoming';
+        }
+
+        // 渲染表格
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <div class="empty-icon">🏆</div>
+                            <div class="empty-text">暂无符合条件的比赛</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = data.map(comp => {
+                const daysLeft = calculateDaysLeft(comp.deadline);
+                const status = getStatus(daysLeft);
+                const deadlineDate = new Date(comp.deadline);
+                
+                return `
+                    <tr class="${status === 'urgent' ? 'urgent' : status === 'active' ? 'active' : ''}">
+                        <td>
+                            <div class="competition-title">
+                                ${comp.title}
+                                ${comp.level === 'S' ? '<span class="star">⭐</span>' : ''}
+                            </div>
+                            <div class="competition-name">${comp.name}</div>
+                            <div class="tags">
+                                ${comp.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                            </div>
+                        </td>
+                        <td>${comp.category}</td>
+                        <td>
+                            <span class="badge ${comp.level.toLowerCase()}">${comp.level}类</span>
+                        </td>
+                        <td>
+                            <div>${deadlineDate.toLocaleDateString('zh-CN')}</div>
+                            <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">
+                                ${deadlineDate.toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'})}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="countdown ${status}">
+                                ${daysLeft >= 0 ? `
+                                    <span class="countdown-value">${daysLeft}</span>
+                                    <span class="countdown-label">天</span>
+                                ` : `
+                                    <span class="countdown-value" style="color: #9ca3af;">已截止</span>
+                                `}
+                            </div>
+                        </td>
+                        <td>
+                            <a href="${comp.website}" target="_blank" class="link-btn" title="访问官网">🔗</a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 更新统计
+        function updateStats(data) {
+            const urgent = data.filter(c => getStatus(calculateDaysLeft(c.deadline)) === 'urgent').length;
+            const active = data.filter(c => getStatus(calculateDaysLeft(c.deadline)) === 'active').length;
+            const highLevel = data.filter(c => c.level === 'S' || c.level === 'A').length;
+
+            document.getElementById('urgentCount').textContent = urgent;
+            document.getElementById('activeCount').textContent = active;
+            document.getElementById('highLevelCount').textContent = highLevel;
+            document.getElementById('totalCompetitions').textContent = competitions.length;
+            document.getElementById('totalCount').textContent = data.length;
+        }
+
+        // 筛选数据
+        function filterData() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const level = document.getElementById('levelFilter').value;
+            const status = document.getElementById('statusFilter').value;
+
+            let filtered = competitions.filter(comp => {
+                const matchSearch = comp.title.toLowerCase().includes(searchTerm) || 
+                                  comp.name.toLowerCase().includes(searchTerm);
+                const matchCategory = category === 'all' || comp.category === category;
+                const matchLevel = level === 'all' || comp.level === level;
+                
+                const daysLeft = calculateDaysLeft(comp.deadline);
+                const compStatus = getStatus(daysLeft);
+                const matchStatus = status === 'all' || compStatus === status;
+
+                return matchSearch && matchCategory && matchLevel && matchStatus;
+            });
+
+            // 按截止日期排序
+            filtered.sort((a, b) => {
+                const daysA = calculateDaysLeft(a.deadline);
+                const daysB = calculateDaysLeft(b.deadline);
+                return daysA - daysB;
+            });
+
+            renderTable(filtered);
+            updateStats(filtered);
+        }
+
+        // 初始化分类选项
+        function initFilters() {
+            const categories = [...new Set(competitions.map(c => c.category))];
+            const categoryFilter = document.getElementById('categoryFilter');
+            
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = `类别: ${cat}`;
+                categoryFilter.appendChild(option);
+            });
+        }
+
+        // 更新日期
+        function updateDate() {
+            const now = new Date();
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('updateTime').textContent = `更新: ${now.toLocaleDateString('zh-CN')}`;
+        }
+
+        // 事件监听
+        document.getElementById('searchInput').addEventListener('input', filterData);
+        document.getElementById('categoryFilter').addEventListener('change', filterData);
+        document.getElementById('levelFilter').addEventListener('change', filterData);
+        document.getElementById('statusFilter').addEventListener('change', filterData);
+
+        // 初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            updateDate();
+            initFilters();
+            filterData();
+            
+            // 每分钟更新一次倒计时
+            setInterval(() => {
+                filterData();
+            }, 60000);
+        });
+    </script>
+</body>
+</html>
